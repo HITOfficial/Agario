@@ -35,26 +35,28 @@ const generateNewBlobPoint = () => {
     newBlobPoint.x = x;
     newBlobPoint.y = y;
     newBlobPoint.radius = radius;
+    blobPointArray.push(JSON.parse(JSON.stringify(newBlobPoint))); // as i had a problem, becouse normaly objects have a reference, i firstly had stringified and secondly parsed, to do remove a reference
+
 }
 // adding new BlobPoint to Blobs array
 createNewBlobPoint = (limit) => {
     if(limit == undefined) {
-        for(i = 0; i < 20; i++){
+        for(i = 0; i < 7; i++){
             generateNewBlobPoint();
-            blobPointArray.push(newBlobPoint);    
-            }
+        }
     }
     else {
         for(i = 0; i < limit; i++){
             generateNewBlobPoint();
-            blobPointArray.push(newBlobPoint);    
+            blobPointArray.push(newBlobPoint);
         }
     }
+    
 }
-createNewBlobPoint();
 // to refresh available blobPoints from array on canvas
 drawActualBlobPoints = () => {
-    blobPointArray.forEach( actualBlobPoint => {
+    blobPointArray.forEach(actualBlobPoint => {
+        // console.log(actualBlobPoint)
         createBlob(actualBlobPoint.x, actualBlobPoint.y, actualBlobPoint.radius);
     })
 }
@@ -85,12 +87,13 @@ const clearCanvas = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
 }
 const fillCanvas = () => {
-    setInterval(drawCanvas, 1000/100);
+    setInterval(drawCanvas, 1000/60);
 }
 const startGame = () => {
     drawPlayerBlob();
     mousePosition();
-    createNewBlobPoint(100);
+    createNewBlobPoint();
+    drawActualBlobPoints();
     fillCanvas();
 }
 window.onload = startGame;
