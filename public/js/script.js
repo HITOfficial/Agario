@@ -1,12 +1,7 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 let blobPointArray = [];
-let newBlobPoint = {
-    id : 0,
-    x : null,
-    y : null,
-    radius : null
-}
+let newBlobPointId = 0;
 let playerBlob = {
     id : 1,
     position : {
@@ -28,15 +23,15 @@ const createBlob = (x, y, radius) => {
 }
 // generating new coords of blobPoint
 const generateNewBlobPoint = () => {
+    blobPointArray.push({});
+    newBlobPointId += 1;
     radius = 5;
     x = Math.floor(Math.random() * (canvas.width - (radius * 2)) + radius);
     y = Math.floor(Math.random() * (canvas.height - (radius * 2)) + radius);
-    newBlobPoint.id += 1;
-    newBlobPoint.x = x;
-    newBlobPoint.y = y;
-    newBlobPoint.radius = radius;
-    blobPointArray.push(JSON.parse(JSON.stringify(newBlobPoint))); // as i had a problem, becouse normaly objects have a reference, i firstly had stringified and secondly parsed, to do remove a reference
-
+    blobPointArray[blobPointArray.length - 1].id = newBlobPointId;
+    blobPointArray[blobPointArray.length - 1].x = x;
+    blobPointArray[blobPointArray.length - 1].y = y;
+    blobPointArray[blobPointArray.length - 1].radius = radius;
 }
 // adding new BlobPoint to Blobs array
 createNewBlobPoint = (limit) => {
@@ -48,10 +43,8 @@ createNewBlobPoint = (limit) => {
     else {
         for(i = 0; i < limit; i++){
             generateNewBlobPoint();
-            blobPointArray.push(newBlobPoint);
         }
     }
-    
 }
 // to refresh available blobPoints from array on canvas
 drawActualBlobPoints = () => {
@@ -77,11 +70,31 @@ const drawPlayerBlob = () => {
     playerBlobSpeed();
     createBlob(playerBlob.position.x, playerBlob.position.y - (playerBlob.range.radius * 3), playerBlob.range.radius);
 }
-
+const eatBlobPoint = () => {
+    blobPointArray.forEach(actualBlobPoint => {
+        if(    (playerBlob.position.x >= actualBlobPoint.x - Math.floor(playerBlob.range.radius))
+            && (playerBlob.position.x <= actualBlobPoint.x + Math.floor(playerBlob.range.radius))
+            && (playerBlob.position.y >= actualBlobPoint.y - Math.floor(playerBlob.range.radius))
+            && (playerBlob.position.y <= actualBlobPoint.y + Math.floor(playerBlob.range.radius))){
+                console.log(`Player ${playerBlob.position.x}, ${playerBlob.position.y}`)
+                console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
+                console.log(blobPointArray.indexOf(actualBlobPoint))
+                blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
+        }
+        // if(     (playerBlob.position.y >= actualBlobPoint.y - Math.floor(actualBlobPoint.radius / 3))
+        //      && (playerBlob.position.y <= actualBlobPoint.y + Math.floor(actualBlobPoint.radius / 3))){
+        //          console.log(`Player ${playerBlob.position.x}, ${playerBlob.position.y}`)
+        //          console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
+        //          console.log(blobPointArray.indexOf(actualBlobPoint))
+        //          blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
+        //     }
+    })
+}
 const drawCanvas = () => {
     clearCanvas();
     drawActualBlobPoints();
     drawPlayerBlob();
+    eatBlobPoint();
 }
 const clearCanvas = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
