@@ -45,7 +45,7 @@ const generateNewBlobPoint = () => {
     // blobPointArray[blobPointArray.length - 1].radius = radius;
     blobPointArray.push({});
     newBlobPointId += 1;
-    radius = 1;
+    radius = 5;
     blobPointArray[blobPointArray.length - 1].id = newBlobPointId;
     blobPointArray[blobPointArray.length - 1].x = x;
     blobPointArray[blobPointArray.length - 1].y = y;
@@ -75,29 +75,32 @@ drawActualBlobPoints = () => {
 createBlob(playerBlob.position.x, playerBlob.position.y, playerBlob.range.radius);
 const mousePosition = () => {
     canvas.addEventListener('mousemove', (mouse) => {
-        mouseCoord.x = mouse.screenX;
-        mouseCoord.y = mouse.screenY;
+        mouseCoord.x = mouse.x;
+        mouseCoord.y = mouse.y;
     });
 }
-const distanceBetweenPlayerBlobAndBlobPoint = () => {
-    blobPointArray.forEach(actualBlobPoint => {
+const distanceBetweenBlobs = (firstBlob, blobsArray) => {
+    blobsArray.forEach(actualBlobPoint => {
         twoRadiuses = 0;
-        if(mouseCoord.x >= actualBlobPoint.x){
-            grater.x =mouseCoord.x;
+        if(firstBlob.position.x >= actualBlobPoint.x){
+            grater.x = firstBlob.position.x;
             lower.x = actualBlobPoint.x;
         } else {
-            grater.x = actualBlobPoint.x;
-            lower.x = mouseCoord.x;
+            grater.x = firstBlob.position.x;
+            lower.x = firstBlob.position.x;
         }
-        if(mouseCoord.y >= actualBlobPoint.y){
-            grater.y = mouseCoord.y;
+        if(firstBlob.position.y >= actualBlobPoint.y){
+            grater.y = firstBlob.position.y;
             lower.y = actualBlobPoint.y;
         } else {
             grater.y = actualBlobPoint.y;
-            lower.y = mouseCoord.y;
+            lower.y = firstBlob.position.y;
         }
         twoRadiuses = Math.floor(Math.sqrt(Math.pow((grater.x - lower.x),2) + Math.pow((grater.y - lower.y),2)));
-        console.log(twoRadiuses);
+        console.log(`Mouse ${firstBlob.position.x}, ${firstBlob.position.y}`)
+        console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
+        console.log('distance: ' + twoRadiuses);
+        return twoRadiuses;
     });
 }
 const playerBlobSpeed = () => {
@@ -108,43 +111,20 @@ const playerBlobSpeed = () => {
 }
 const drawPlayerBlob = () => {
     playerBlobSpeed();
-    createBlob(playerBlob.position.x, playerBlob.position.y - (playerBlob.range.radius * 3), playerBlob.range.radius);
+    createBlob(playerBlob.position.x, playerBlob.position.y, playerBlob.range.radius);
 }
 const eatBlobPoint = () => {
     blobPointArray.forEach(actualBlobPoint => {
-        // if(    (playerBlob.position.x >= actualBlobPoint.x - Math.floor(playerBlob.range.radius))
-        //     && (playerBlob.position.x <= actualBlobPoint.x + Math.floor(playerBlob.range.radius / 5))
-        //     && (playerBlob.position.y >= actualBlobPoint.y - Math.floor(playerBlob.range.radius))
-        //     && (playerBlob.position.y <= actualBlobPoint.y + Math.floor(playerBlob.range.radius))){
-        //         console.log(`Player ${playerBlob.position.x}, ${playerBlob.position.y}`)
-        //         console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
-        //         console.log(blobPointArray.indexOf(actualBlobPoint))
-        //         blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
-        // }
-        if(    (mouseCoord.x >= actualBlobPoint.x - Math.floor(actualBlobPoint.radius))
-        && (mouseCoord.x <= actualBlobPoint.x + Math.floor(actualBlobPoint.radius))
-        && (mouseCoord.y >= actualBlobPoint.y - Math.floor(actualBlobPoint.radius * 3))
-        && (mouseCoord.y <= actualBlobPoint.y + Math.floor(actualBlobPoint.radius * 3))){
-            console.log(`Mouse ${mouseCoord.x}, ${mouseCoord.y}`)
-            console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
-            console.log(blobPointArray.indexOf(actualBlobPoint))
+        distanceBetweenBlobs(playerBlob, blobPointArray);
+        if(playerBlob.range.radius >= twoRadiuses){
             blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
-            distanceBetweenPlayerBlobAndBlobPoint();
-    }
-        
-        // if(     (playerBlob.position.y >= actualBlobPoint.y - Math.floor(actualBlobPoint.radius / 3))
-        //      && (playerBlob.position.y <= actualBlobPoint.y + Math.floor(actualBlobPoint.radius / 3))){
-        //          console.log(`Player ${playerBlob.position.x}, ${playerBlob.position.y}`)
-        //          console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
-        //          console.log(blobPointArray.indexOf(actualBlobPoint))
-        //          blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
-        //     }
+        }
     })
 }
 const drawCanvas = () => {
     clearCanvas();
     drawActualBlobPoints();
-    // drawPlayerBlob();
+    drawPlayerBlob();
     eatBlobPoint();
 }
 const clearCanvas = () => {
@@ -156,9 +136,9 @@ const fillCanvas = () => {
 const startGame = () => {
     drawPlayerBlob();
     mousePosition();
-    createNewBlobPoint();
+    createNewBlobPoint(1);
     drawActualBlobPoints();
     fillCanvas();
-    document.querySelector('canvas').addEventListener('click', distanceBetweenPlayerBlobAndBlobPoint);
+    // document.querySelector('canvas').addEventListener('click', distanceBetweenPlayerBlobAndBlobPoint);
 }
 window.onload = startGame;
