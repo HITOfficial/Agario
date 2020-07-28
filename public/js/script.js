@@ -112,10 +112,16 @@ const distanceBetweenBlobs = (firstBlob, secondBlob) => {
     return twoRadiuses;
 }
 const playerBlobSpeed = () => {
-    if(playerBlob.body[0].position.x < mouseCoord.x) playerBlob.body[0].position.x +=1;
-    if(playerBlob.body[0].position.x > mouseCoord.x) playerBlob.body[0].position.x -=1;
-    if(playerBlob.body[0].position.y < mouseCoord.y) playerBlob.body[0].position.y +=1;
-    if(playerBlob.body[0].position.y > mouseCoord.y) playerBlob.body[0].position.y -=1;
+    playerBlob.body.forEach(actualPlayerBlobBody => {
+        if(actualPlayerBlobBody.position.x < mouseCoord.x) actualPlayerBlobBody.position.x +=1;
+        if(actualPlayerBlobBody.position.x > mouseCoord.x) actualPlayerBlobBody.position.x -=1;
+        if(actualPlayerBlobBody.position.y < mouseCoord.y) actualPlayerBlobBody.position.y +=1;
+        if(actualPlayerBlobBody.position.y > mouseCoord.y) actualPlayerBlobBody.position.y -=1;
+        if(actualPlayerBlobBody.position.x < mouseCoord.x && actualPlayerBlobBody.position.y == mouseCoord.y) actualPlayerBlobBody.position.x += Math.sqrt((1 + 1), 2);
+        if(actualPlayerBlobBody.position.x > mouseCoord.x && actualPlayerBlobBody.position.y == mouseCoord.y) actualPlayerBlobBody.position.x -= Math.sqrt((1 + 1), 2);
+        if(actualPlayerBlobBody.position.y < mouseCoord.y && actualPlayerBlobBody.position.x == mouseCoord.x) actualPlayerBlobBody.position.y += Math.sqrt((1 + 1), 2);
+        if(actualPlayerBlobBody.position.y > mouseCoord.y && actualPlayerBlobBody.position.x == mouseCoord.x) actualPlayerBlobBody.position.y -= Math.sqrt((1 + 1), 2);
+    })
 }
 const updateBlobValues = (blob) => {
     blob.range.radius = Math.floor(blob.score.points / 2);
@@ -123,8 +129,8 @@ const updateBlobValues = (blob) => {
 const drawPlayerBlob = () => {
     updateBlobValues(playerBlob.body[0]);
     playerBlobSpeed();
-    playerBlob.body.forEach(actualBlobBody => {
-        createBlob(actualBlobBody.position.x, actualBlobBody.position.y, actualBlobBody.range.radius, playerBlob.background.color);
+    playerBlob.body.forEach(actualPlayerBlobBody => {
+        createBlob(actualPlayerBlobBody.position.x, actualPlayerBlobBody.position.y, actualPlayerBlobBody.range.radius, playerBlob.background.color);
     })
 }
 const eatBlobPoint = () => {
@@ -138,12 +144,24 @@ const eatBlobPoint = () => {
         })
     })
 }
+const eatPlayerBlobBody = () => {
+    playerBlobBodyPointArray.forEach(actualBlobBodyPoint => {
+        playerBlob.body.forEach(actualPlayerBlobBody => {
+            distanceBetweenBlobs(actualPlayerBlobBody, actualBlobBodyPoint);
+            if(actualPlayerBlobBody.range.radius - actualBlobBodyPoint.range.radius >= twoRadiuses){
+                actualPlayerBlobBody.score.points += actualBlobBodyPoint.score.points;
+                playerBlobBodyPointArray.splice(playerBlobBodyPointArray.indexOf(actualBlobBodyPoint),1);
+            }
+        })
+    })
+}
 const drawCanvas = () => {
     clearCanvas();
     drawActualBlobPoints();
     drawPlayerBlob();
     drawActualBlobBodyPoints();
     eatBlobPoint();
+    eatPlayerBlobBody();
 }
 const clearCanvas = () => {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -168,26 +186,21 @@ const startGame = () => {
                 if(actualPlayerBlobBody.score.points > 20) {
                     actualPlayerBlobBody.score.points -= 10;
                     playerBlobBodyPointArray.push(removeReverence(actualPlayerBlobBody));
-                    // console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)]);
                     playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].score.points = 10;
                     playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius = 10;
                     playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].id = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)];
                     delete playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].bodyId;
                     if(mouseCoord.x > actualPlayerBlobBody.position.x) {
                         playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x += actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
-                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, mouseCoord.x)
                     }
                     if(mouseCoord.x < actualPlayerBlobBody.position.x) {
                         playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x -= actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
-                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, mouseCoord.x)
                     }
                     if(mouseCoord.y > actualPlayerBlobBody.position.y) {
                         playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y += actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
-                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, mouseCoord.y)
                     }
                     if(mouseCoord.y < actualPlayerBlobBody.position.y) {
                         playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y -= actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
-                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, mouseCoord.y)
                     }
                     else if(mouseCoord.x == actualPlayerBlobBody.position.x && mouseCoord.y == actualPlayerBlobBody.position.y) {
                         playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x -= actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;
@@ -199,7 +212,6 @@ const startGame = () => {
     })
 }
 window.onload = startGame;
-createBlob(playerBlob.body[0].position.x, playerBlob.body[0].position.y, playerBlob.body[0].range.radius);
 const removeReverence = (object) => {
     object = JSON.parse(JSON.stringify(object));
     return object;
