@@ -1,6 +1,7 @@
 const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 let blobPointArray = [];
+let playerBlobBodyPointArray = [];
 let newBlobPointId = 0;
 let twoRadiuses = 0;
 let grater = {
@@ -13,27 +14,35 @@ let lower = {
 }
 let playerBlob = {
     id : 1,
-    position : {
-        x : canvas.width / 2,
-        y : canvas.height / 2,
-    },
-    range : {
-        radius : 20
-    },
-    score : {
-        points : 40
+    body : [
+        {
+            bodyId : 1,
+            position : {
+                x : canvas.width / 2,
+                y : canvas.height / 2,
+            },
+            range : {
+                radius : 20
+            },
+            score : {
+                points : 40
+            },
+        }
+    ],
+    background : {
+        color : '#ff0000'
     }
 };
 let mouseCoord = {
     x : null,
     y : null,
 }
-const createBlob = (x, y, radius) => {
+const createBlob = (x, y, radius, color) => {
     ctx.beginPath();
     ctx.arc(x, y, radius, 0, 2 * Math.PI);
-    ctx.strokeStyle = 'red';
+    if(color == undefined) ctx.fillStyle = '#000000'
+    else ctx.fillStyle = color;
     ctx.fill();
-    ctx.stroke();
 }
 // generating new coords of blobPoint
 const generateNewBlobPoint = () => {
@@ -48,7 +57,6 @@ const generateNewBlobPoint = () => {
     blobPointArray[blobPointArray.length - 1].range = {radius : radius};
     blobPointArray[blobPointArray.length - 1].score = {points: Math.floor(radius / 2)};
 }
-
 // adding new BlobPoint to Blobs array
 createNewBlobPoint = (limit) => {
     if(limit == undefined) {
@@ -69,7 +77,12 @@ drawActualBlobPoints = () => {
         createBlob(actualBlobPoint.position.x, actualBlobPoint.position.y, actualBlobPoint.range.radius);
     })
 }
-createBlob(playerBlob.position.x, playerBlob.position.y, playerBlob.range.radius);
+drawActualBlobBodyPoints = () => {
+    playerBlobBodyPointArray.forEach(actualplayerBlobBodyPoint => {
+        // console.log(actualBlobPoint)
+        createBlob(actualplayerBlobBodyPoint.position.x, actualplayerBlobBodyPoint.position.y, actualplayerBlobBodyPoint.range.radius);
+    })
+}
 const mousePosition = () => {
     canvas.addEventListener('mousemove', (mouse) => {
         mouseCoord.x = mouse.x;
@@ -93,35 +106,43 @@ const distanceBetweenBlobs = (firstBlob, secondBlob) => {
         lower.y = firstBlob.position.y;
     }
     twoRadiuses = Math.floor(Math.sqrt(Math.pow((grater.x - lower.x),2) + Math.pow((grater.y - lower.y),2)));
-    // console.log(`Mouse ${firstBlob.position.x}, ${firstBlob.position.y}`)
-    // console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
+    // console.log(`blob1: ${firstBlob.position.x}, ${firstBlob.position.y}`)
+    // console.log(`blob2: ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
     // console.log('distance: ' + twoRadiuses);
     return twoRadiuses;
 }
 const playerBlobSpeed = () => {
-    if(playerBlob.position.x < mouseCoord.x) playerBlob.position.x +=1;
-    if(playerBlob.position.x > mouseCoord.x) playerBlob.position.x -=1;
-    if(playerBlob.position.y < mouseCoord.y) playerBlob.position.y +=1;
-    if(playerBlob.position.y > mouseCoord.y) playerBlob.position.y -=1;
+    if(playerBlob.body[0].position.x < mouseCoord.x) playerBlob.body[0].position.x +=1;
+    if(playerBlob.body[0].position.x > mouseCoord.x) playerBlob.body[0].position.x -=1;
+    if(playerBlob.body[0].position.y < mouseCoord.y) playerBlob.body[0].position.y +=1;
+    if(playerBlob.body[0].position.y > mouseCoord.y) playerBlob.body[0].position.y -=1;
+}
+const updateBlobValues = (blob) => {
+    blob.range.radius = Math.floor(blob.score.points / 2);
 }
 const drawPlayerBlob = () => {
+    updateBlobValues(playerBlob.body[0]);
     playerBlobSpeed();
-    createBlob(playerBlob.position.x, playerBlob.position.y, playerBlob.range.radius);
+    playerBlob.body.forEach(actualBlobBody => {
+        createBlob(actualBlobBody.position.x, actualBlobBody.position.y, actualBlobBody.range.radius, playerBlob.background.color);
+    })
 }
 const eatBlobPoint = () => {
     blobPointArray.forEach(actualBlobPoint => {
-        distanceBetweenBlobs(playerBlob, actualBlobPoint);
-        if(playerBlob.range.radius - actualBlobPoint.range.radius >= twoRadiuses){
-            playerBlob.score.points += actualBlobPoint.score.points;
-            playerBlob.range.radius = Math.floor(playerBlob.score.points / 2);
-            blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
-        }
+        playerBlob.body.forEach(actualPlayerBlobBody => {
+            distanceBetweenBlobs(actualPlayerBlobBody, actualBlobPoint);
+            if(actualPlayerBlobBody.range.radius - actualBlobPoint.range.radius >= twoRadiuses){
+                actualPlayerBlobBody.score.points += actualBlobPoint.score.points;
+                blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
+            }
+        })
     })
 }
 const drawCanvas = () => {
     clearCanvas();
     drawActualBlobPoints();
     drawPlayerBlob();
+    drawActualBlobBodyPoints();
     eatBlobPoint();
 }
 const clearCanvas = () => {
@@ -135,7 +156,30 @@ const startGame = () => {
     mousePosition();
     createNewBlobPoint(10);
     drawActualBlobPoints();
+    drawActualBlobBodyPoints();
     fillCanvas();
-    // document.querySelector('canvas').addEventListener('click', distanceBetweenPlayerBlobAndBlobPoint);
+    const intervalLimitOfBlobPoint = setInterval(() => {
+        if(blobPointArray.length < 30) createNewBlobPoint(1);
+    },1000);
+    document.addEventListener('keydown', e => {
+        if(e.keyCode == 87){
+            playerBlob.body.forEach(actualPlayerBlobBody => {
+                if(actualPlayerBlobBody.score.points >= 20) {
+                    actualPlayerBlobBody.score.points -= 10;
+                    playerBlobBodyPointArray.push(actualPlayerBlobBody);
+                    console.log(playerBlob.background.color);
+                    playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].score.points = 10;
+                    playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].range.radius = 10;
+                    playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].id = playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)];
+                    delete playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].bodyId;
+                    playerBlobBodyPointArray.forEach(a => {
+                        console.log(a);
+                    })
+                }
+            })
+            // playerBlobBodyPointArray
+        }
+    })
 }
 window.onload = startGame;
+createBlob(playerBlob.body[0].position.x, playerBlob.body[0].position.y, playerBlob.body[0].range.radius);
