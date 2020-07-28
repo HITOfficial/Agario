@@ -19,6 +19,9 @@ let playerBlob = {
     },
     range : {
         radius : 20
+    },
+    score : {
+        points : 40
     }
 };
 let mouseCoord = {
@@ -34,22 +37,16 @@ const createBlob = (x, y, radius) => {
 }
 // generating new coords of blobPoint
 const generateNewBlobPoint = () => {
-    // blobPointArray.push({});
+    blobPointArray.push({});
     newBlobPointId += 1;
     radius = 5;
     x = Math.floor(Math.random() * (canvas.width - (radius * 2)) + radius);
     y = Math.floor(Math.random() * (canvas.height - (radius * 2)) + radius);
-    // blobPointArray[blobPointArray.length - 1].id = newBlobPointId;
-    // blobPointArray[blobPointArray.length - 1].x = x;
-    // blobPointArray[blobPointArray.length - 1].y = y;
-    // blobPointArray[blobPointArray.length - 1].radius = radius;
-    blobPointArray.push({});
-    newBlobPointId += 1;
-    radius = 5;
     blobPointArray[blobPointArray.length - 1].id = newBlobPointId;
-    blobPointArray[blobPointArray.length - 1].x = x;
-    blobPointArray[blobPointArray.length - 1].y = y;
-    blobPointArray[blobPointArray.length - 1].radius = radius;
+    blobPointArray[blobPointArray.length - 1].position = {x : x,
+                                                          y : y};
+    blobPointArray[blobPointArray.length - 1].range = {radius : radius};
+    blobPointArray[blobPointArray.length - 1].score = {points: Math.floor(radius / 2)};
 }
 
 // adding new BlobPoint to Blobs array
@@ -69,7 +66,7 @@ createNewBlobPoint = (limit) => {
 drawActualBlobPoints = () => {
     blobPointArray.forEach(actualBlobPoint => {
         // console.log(actualBlobPoint)
-        createBlob(actualBlobPoint.x, actualBlobPoint.y, actualBlobPoint.radius);
+        createBlob(actualBlobPoint.position.x, actualBlobPoint.position.y, actualBlobPoint.range.radius);
     })
 }
 createBlob(playerBlob.position.x, playerBlob.position.y, playerBlob.range.radius);
@@ -79,29 +76,27 @@ const mousePosition = () => {
         mouseCoord.y = mouse.y;
     });
 }
-const distanceBetweenBlobs = (firstBlob, blobsArray) => {
-    blobsArray.forEach(actualBlobPoint => {
-        twoRadiuses = 0;
-        if(firstBlob.position.x >= actualBlobPoint.x){
-            grater.x = firstBlob.position.x;
-            lower.x = actualBlobPoint.x;
-        } else {
-            grater.x = firstBlob.position.x;
-            lower.x = firstBlob.position.x;
-        }
-        if(firstBlob.position.y >= actualBlobPoint.y){
-            grater.y = firstBlob.position.y;
-            lower.y = actualBlobPoint.y;
-        } else {
-            grater.y = actualBlobPoint.y;
-            lower.y = firstBlob.position.y;
-        }
-        twoRadiuses = Math.floor(Math.sqrt(Math.pow((grater.x - lower.x),2) + Math.pow((grater.y - lower.y),2)));
-        console.log(`Mouse ${firstBlob.position.x}, ${firstBlob.position.y}`)
-        console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
-        console.log('distance: ' + twoRadiuses);
-        return twoRadiuses;
-    });
+const distanceBetweenBlobs = (firstBlob, secondBlob) => {
+    twoRadiuses = 0;
+    if(firstBlob.position.x >= secondBlob.position.x){
+        grater.x = firstBlob.position.x;
+        lower.x = secondBlob.position.x;
+    } else {
+        grater.x = secondBlob.position.x;
+        lower.x = firstBlob.position.x;
+    }
+    if(firstBlob.position.y >= secondBlob.y){
+        grater.y = firstBlob.position.y;
+        lower.y = secondBlob.position.y;
+    } else {
+        grater.y = secondBlob.position.y;
+        lower.y = firstBlob.position.y;
+    }
+    twoRadiuses = Math.floor(Math.sqrt(Math.pow((grater.x - lower.x),2) + Math.pow((grater.y - lower.y),2)));
+    // console.log(`Mouse ${firstBlob.position.x}, ${firstBlob.position.y}`)
+    // console.log(`blob ${actualBlobPoint.x}, ${actualBlobPoint.y}`)
+    // console.log('distance: ' + twoRadiuses);
+    return twoRadiuses;
 }
 const playerBlobSpeed = () => {
     if(playerBlob.position.x < mouseCoord.x) playerBlob.position.x +=1;
@@ -115,8 +110,10 @@ const drawPlayerBlob = () => {
 }
 const eatBlobPoint = () => {
     blobPointArray.forEach(actualBlobPoint => {
-        distanceBetweenBlobs(playerBlob, blobPointArray);
-        if(playerBlob.range.radius >= twoRadiuses){
+        distanceBetweenBlobs(playerBlob, actualBlobPoint);
+        if(playerBlob.range.radius - actualBlobPoint.range.radius >= twoRadiuses){
+            playerBlob.score.points += actualBlobPoint.score.points;
+            playerBlob.range.radius = Math.floor(playerBlob.score.points / 2);
             blobPointArray.splice(blobPointArray.indexOf(actualBlobPoint),1);
         }
     })
@@ -136,7 +133,7 @@ const fillCanvas = () => {
 const startGame = () => {
     drawPlayerBlob();
     mousePosition();
-    createNewBlobPoint(1);
+    createNewBlobPoint(10);
     drawActualBlobPoints();
     fillCanvas();
     // document.querySelector('canvas').addEventListener('click', distanceBetweenPlayerBlobAndBlobPoint);
