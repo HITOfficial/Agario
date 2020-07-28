@@ -161,25 +161,50 @@ const startGame = () => {
     const intervalLimitOfBlobPoint = setInterval(() => {
         if(blobPointArray.length < 30) createNewBlobPoint(1);
     },1000);
+    // function under looks meybe not the best but i have replaced following by indexOf actualPlayerBody becouse of reference problem so I decided to take last available item from playerBlobBodyPointArray 
     document.addEventListener('keydown', e => {
         if(e.keyCode == 87){
             playerBlob.body.forEach(actualPlayerBlobBody => {
-                if(actualPlayerBlobBody.score.points >= 20) {
+                if(actualPlayerBlobBody.score.points > 20) {
                     actualPlayerBlobBody.score.points -= 10;
-                    playerBlobBodyPointArray.push(actualPlayerBlobBody);
-                    console.log(playerBlob.background.color);
-                    playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].score.points = 10;
-                    playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].range.radius = 10;
-                    playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].id = playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)];
-                    delete playerBlobBodyPointArray[playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)].bodyId;
-                    playerBlobBodyPointArray.forEach(a => {
-                        console.log(a);
-                    })
+                    playerBlobBodyPointArray.push(removeReverence(actualPlayerBlobBody));
+                    // console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)]);
+                    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].score.points = 10;
+                    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius = 10;
+                    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].id = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)];
+                    delete playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].bodyId;
+                    if(mouseCoord.x > actualPlayerBlobBody.position.x) {
+                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x += actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
+                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, mouseCoord.x)
+                    }
+                    if(mouseCoord.x < actualPlayerBlobBody.position.x) {
+                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x -= actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
+                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, mouseCoord.x)
+                    }
+                    if(mouseCoord.y > actualPlayerBlobBody.position.y) {
+                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y += actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
+                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, mouseCoord.y)
+                    }
+                    if(mouseCoord.y < actualPlayerBlobBody.position.y) {
+                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y -= actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
+                        console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, mouseCoord.y)
+                    }
+                    else if(mouseCoord.x == actualPlayerBlobBody.position.x && mouseCoord.y == actualPlayerBlobBody.position.y) {
+                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x -= actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;
+                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y -= actualPlayerBlobBody.range.radius + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius;    
+                    }
                 }
             })
-            // playerBlobBodyPointArray
         }
     })
 }
 window.onload = startGame;
 createBlob(playerBlob.body[0].position.x, playerBlob.body[0].position.y, playerBlob.body[0].range.radius);
+const removeReverence = (object) => {
+    object = JSON.parse(JSON.stringify(object));
+    return object;
+}
+const lastIndex = (array) => {
+    last = array.length - 1
+    return last;
+}
