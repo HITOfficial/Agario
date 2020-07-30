@@ -2,6 +2,7 @@ const canvas = document.querySelector('canvas');
 const ctx = canvas.getContext('2d');
 let blobPointArray = [];
 let playerBlobBodyPointArray = [];
+let playerBlobBodyPointIntervalsArray = [];
 let newBlobPointId = 0;
 let twoRadiuses = 0;
 let grater = {
@@ -25,7 +26,7 @@ let playerBlob = {
                 radius : 20
             },
             score : {
-                points : 40
+                points : 80
             },
         }
     ],
@@ -112,14 +113,14 @@ const distanceBetweenBlobs = (firstBlob, secondBlob) => {
     return twoRadiuses;
 }
 const playerBlobSpeed = (actualPlayerBlobBody) => {
-    if(actualPlayerBlobBody.position.x < mouseCoord.x) actualPlayerBlobBody.position.x +=1;
-    if(actualPlayerBlobBody.position.x > mouseCoord.x) actualPlayerBlobBody.position.x -=1;
-    if(actualPlayerBlobBody.position.y < mouseCoord.y) actualPlayerBlobBody.position.y +=1;
-    if(actualPlayerBlobBody.position.y > mouseCoord.y) actualPlayerBlobBody.position.y -=1;
-    if(actualPlayerBlobBody.position.x < mouseCoord.x && actualPlayerBlobBody.position.y == mouseCoord.y) actualPlayerBlobBody.position.x += Math.sqrt((1 + 1), 2);
-    if(actualPlayerBlobBody.position.x > mouseCoord.x && actualPlayerBlobBody.position.y == mouseCoord.y) actualPlayerBlobBody.position.x -= Math.sqrt((1 + 1), 2);
-    if(actualPlayerBlobBody.position.y < mouseCoord.y && actualPlayerBlobBody.position.x == mouseCoord.x) actualPlayerBlobBody.position.y += Math.sqrt((1 + 1), 2);
-    if(actualPlayerBlobBody.position.y > mouseCoord.y && actualPlayerBlobBody.position.x == mouseCoord.x) actualPlayerBlobBody.position.y -= Math.sqrt((1 + 1), 2);
+    // if(actualPlayerBlobBody.position.x < mouseCoord.x) actualPlayerBlobBody.position.x +=1;
+    // if(actualPlayerBlobBody.position.x > mouseCoord.x) actualPlayerBlobBody.position.x -=1;
+    // if(actualPlayerBlobBody.position.y < mouseCoord.y) actualPlayerBlobBody.position.y +=1;
+    // if(actualPlayerBlobBody.position.y > mouseCoord.y) actualPlayerBlobBody.position.y -=1;
+    // if(actualPlayerBlobBody.position.x < mouseCoord.x && actualPlayerBlobBody.position.y == mouseCoord.y) actualPlayerBlobBody.position.x += Math.sqrt((1 + 1), 2);
+    // if(actualPlayerBlobBody.position.x > mouseCoord.x && actualPlayerBlobBody.position.y == mouseCoord.y) actualPlayerBlobBody.position.x -= Math.sqrt((1 + 1), 2);
+    // if(actualPlayerBlobBody.position.y < mouseCoord.y && actualPlayerBlobBody.position.x == mouseCoord.x) actualPlayerBlobBody.position.y += Math.sqrt((1 + 1), 2);
+    // if(actualPlayerBlobBody.position.y > mouseCoord.y && actualPlayerBlobBody.position.x == mouseCoord.x) actualPlayerBlobBody.position.y -= Math.sqrt((1 + 1), 2);
 }
 const updateBlobValues = (blob) => {
     blob.range.radius = Math.floor(blob.score.points / 2);
@@ -186,53 +187,70 @@ const startGame = () => {
                     playerBlobBodyPointArray.push(removeReverence(actualPlayerBlobBody));
                     playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].score.points = 10;
                     playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius = 10;
-                    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].id = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)];
+                    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].id = lastIndex(playerBlobBodyPointArray); // create an id of every element from this array, becouse i'll need to look right in this object
+                    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].move = true
                     delete playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].bodyId;
-                    if(mouseCoord.x > actualPlayerBlobBody.position.x) {
-                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x += actualPlayerBlobBody.range.radius;    
-                        endingX = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius
-                        moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, endingX);
-                        updateCoordXInterval = setInterval(updateCordX);
-                        console.log('beforeX ' + playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, endingX)
-                    }
-                    if(mouseCoord.x < actualPlayerBlobBody.position.x) {
-                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x -= actualPlayerBlobBody.range.radius;   
-                        endingX = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x - 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius
-                        moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, endingX)
-                        updateCoordXInterval = setInterval(updateCordX);
-                        console.log('beforeX ' + playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, endingX)
-                    }
-                    if(mouseCoord.y > actualPlayerBlobBody.position.y) {
-                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y += actualPlayerBlobBody.range.radius;    
-                        endingY = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius
-                        moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, endingY)
-                        updateCoordXInterval = setInterval(updateCordY);
-                        console.log('beforeY ' + playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, endingY)
-                    }
-                    if(mouseCoord.y < actualPlayerBlobBody.position.y) {
-                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y -= actualPlayerBlobBody.range.radius;    
-                        endingY = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y - 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius
-                        moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, endingY)
-                        updateCoordXInterval = setInterval(updateCordY);
-                        console.log('beforeY ' + playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, endingY)
-                    }
-                    if(mouseCoord.x == actualPlayerBlobBody.position.x && mouseCoord.y == actualPlayerBlobBody.position.y) {
-                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x -= actualPlayerBlobBody.range.radius;
-                        endingX = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x - 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius
-                        playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y -= actualPlayerBlobBody.range.radius;    
-                        endingY = playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y + 4 * playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].range.radius
-                        moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, endingX)
-                        moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, endingY)
-                        updateCoordXInterval = setInterval(updateCordX);
-                        updateCoordXInterval = setInterval(updateCordY);
-                        console.log('beforeX ' + playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, endingX)
-                        console.log('beforeY ' + playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, endingY)
-                    }
+                    playerBlobBodyPointArray.forEach(playerBlobBodyPoint => { //I'm forEaching now becouse i'll need corectly id'ies i all separated functions
+                    if(playerBlobBodyPoint.move == true) { // i made also once more identification to do not move others BlobBodyPoints
+                        playerBlobBodyPoint.move = false;
+                        console.log(playerBlobBodyPoint)
+                        if(playerBlobBodyPoint.id == playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].id) // here I can do this, without errors, but in setInterval in correctly Id'ies
+                        idOfElement = playerBlobBodyPoint.id;
+                        // if(mouseCoord.x > actualPlayerBlobBody.position.x) {
+                        //     playerBlobBodyPointArray[idOfElement].position.x += actualPlayerBlobBody.range.radius;    
+                        //     endingX = playerBlobBodyPointArray[idOfElement].position.x + 4 * playerBlobBodyPointArray[idOfElement].range.radius
+                        //     if(endingX > canvas.width) endingX = canvas.width
+                        //     moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[idOfElement].position.x, endingX);
+                        //     updateCoordXInterval = setInterval(updateCordX, 1000/60, idOfElement);
+                        // }
+                        if(mouseCoord.x < actualPlayerBlobBody.position.x) {
+                            playerBlobBodyPointArray[idOfElement].position.x -= actualPlayerBlobBody.range.radius;   
+                            endingX = playerBlobBodyPointArray[idOfElement].position.x - 4 * playerBlobBodyPointArray[idOfElement].range.radius
+                            if(endingX > canvas.width) endingX = canvas.width
+                            // setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPoint.position.x ,playerBlobBodyPoint.position.x, playerBlobBodyPoint.position.x - 4 * playerBlobBodyPoint.range.radius)
+                            console.log('tu x: ' + playerBlobBodyPoint.position.x, 'tu y: ' + playerBlobBodyPoint.position.y);
+                            window["interval" + idOfElement] = setInterval(updateCordX, 1000, playerBlobBodyPoint.position.x ,playerBlobBodyPoint.position.x, playerBlobBodyPoint.position.x - 4 * playerBlobBodyPoint.range.radius, playerBlobBodyPoint.id);
+                        }
+                        // if(mouseCoord.y > actualPlayerBlobBody.position.y) {
+                        //     playerBlobBodyPointArray[idOfElement].position.y += actualPlayerBlobBody.range.radius;    
+                        //     endingY = playerBlobBodyPointArray[idOfElement].position.y + 4 * playerBlobBodyPointArray[idOfElement].range.radius
+                        //     if(endingY > canvas.height) endingY = canvas.height;
+                        //     moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[idOfElement].position.y, endingY)
+                        //     updateCoordYInterval = setInterval(updateCordY, 1000/60, idOfElement);
+                        // }
+                        // if(mouseCoord.y < actualPlayerBlobBody.position.y) {
+                        //     playerBlobBodyPointArray[idOfElement].position.y -= actualPlayerBlobBody.range.radius;    
+                        //     endingY = playerBlobBodyPointArray[idOfElement].position.y - 4 * playerBlobBodyPointArray[idOfElement].range.radius
+                        //     if(endingY > canvas.height) endingY = canvas.height;
+                        //     playerBlobBodyPointArray.moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[idOfElement].position.y, endingY)
+                        //     playerBlobBodyPointArray.updateCoordYInterval = setInterval(updateCordY, 1000, idOfElement);
+                        // }
+                        // if(mouseCoord.x == actualPlayerBlobBody.position.x && mouseCoord.y == actualPlayerBlobBody.position.y) {
+                        //     playerBlobBodyPointArray[idOfElement].position.x -= actualPlayerBlobBody.range.radius;
+                        //     endingX = playerBlobBodyPointArray[idOfElement].position.x - 4 * playerBlobBodyPointArray[idOfElement].range.radius
+                        //     if(endingX > canvas.width) endingX = canvas.width;
+                        //     playerBlobBodyPointArray[idOfElement].position.y -= actualPlayerBlobBody.range.radius;    
+                        //     endingY = playerBlobBodyPointArray[idOfElement].position.y + 4 * playerBlobBodyPointArray[idOfElement].range.radius
+                        //     if(endingY > canvas.height) endingY = canvas.height;
+                        //     moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[idOfElement].position.x, endingX)
+                        //     moveBloBAutomaticaly = setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPointArray[idOfElement].position.y, endingY)
+                        //     updateCoordXInterval = setInterval(updateCordX, 1000/60, idOfElement);
+                        //     playerBlobBodyPointArray.indexOf(actualPlayerBlobBody)
+                        //     updateCoordYInterval = setInterval(updateCordY, 1000/60, idOfElement);
+                        // }
+                        console.log(playerBlobBodyPoint)
+                    }   
+                    })
+                    console.log(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].moveBloBAutomaticaly)
                 }
             })
         }
     })
 }
+// const removeElementFromArray = (array, element) => {
+// array.pop(element);
+// }
+// removeElementFromArrayTimeout = setTimeout(removeElementFromArray, 5000)
 window.onload = startGame;
 const removeReverence = (object) => {
     object = JSON.parse(JSON.stringify(object));
@@ -242,35 +260,39 @@ const lastIndex = (array) => {
     last = array.length - 1
     return last;
 }
-const moveBloBAutomaticalyInsideInterval = (actualCoord, endCoord) => {
+const moveBloBAutomaticalyInsideInterval = (blob, actualCoord, endCoord, id) => {
+    // console.log('to  kurwa to ' + blob);
+    // console.log(endCoord)
+    // console.log(playerBlobBodyPoint)
     if(actualCoord >= endCoord) {
-        // console.log('Inside ' + actualCoord, endCoord)
-        console.log(actualCoord);
-        actualCoord -= 1;
-        console.log(actualCoord);
+        actualCoord -= 50;
         if(actualCoord <= endCoord){
-            clearInterval(moveBloBAutomaticaly);
-            clearInterval(updateCoordXInterval);
-            console.log(`koncze A: ${actualCoord} E: ${endCoord}`);
+            clearInterval(window["interval" + idOfElement]);
+            console.log(`konczeeeeeeeeeeeeeeeeeeeeee A: ${actualCoord} E: ${endCoord}`);
         }
     }
     if(actualCoord <= endCoord) {
-        console.log(actualCoord);
         actualCoord += 1;
-        console.log(actualCoord);
         if(actualCoord >= endCoord){
-            clearInterval(moveBloBAutomaticaly);
+            clearInterval(playerBlobBodyPointArray.moveBloBAutomaticaly);
+            clearInterval(playerBlobBodyPointArray.updateCoordXInterval);
+            clearInterval(playerBlobBodyPointArray.updateCoordYInterval);
             console.log(`koncze A: ${actualCoord} E: ${endCoord}`);
         }
     }
     return actualCoord;
 }
-updateCordX = () => {
-    coordX = moveBloBAutomaticalyInsideInterval(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x, endingX);
-    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.x = coordX;
+updateCordX = (blob, actualCoord, endCoord, id) => {
+    console.log(actualCoord, endCoord);
+    coordX = moveBloBAutomaticalyInsideInterval(blob, actualCoord, endCoord, id);
+    console.log('return ' + coordX);
+    console.log('aktualnie' + playerBlobBodyPointArray[id].position.x);
+    playerBlobBodyPointArray[id].position.x = coordX;
+    console.log(' nadpisane ' + playerBlobBodyPointArray[id].position.x);  
 }
-updateCordY = (actualCoord) => {
-    coordY = moveBloBAutomaticalyInsideInterval(playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y, endingY);
-    playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].position.y = coordY;
+updateCordY = (blob, actualCoord, endCoord) => {
+    coordY = moveBloBAutomaticalyInsideInterval(blob, actualCoord, endCoord);
+    // console.log(coordY);
+    playerBlobBodyPointArray[id].position.y = coordY;
 }
-
+let updateCoordXInterval, updateCoordYInterval
