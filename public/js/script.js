@@ -149,8 +149,8 @@ const eatPlayerBlobBody = () => {
             distanceBetweenBlobs(actualPlayerBlobBody, actualBlobBodyPoint);
             if(actualPlayerBlobBody.range.radius - actualBlobBodyPoint.range.radius >= twoRadiuses){
                 actualPlayerBlobBody.score.points += actualBlobBodyPoint.score.points;
-                clearInterval(window["intervalX" + actualBlobBodyPoint.id]);
-                clearInterval(window["intervalY" + actualBlobBodyPoint.id]);
+                if(clearInterval(window["intervalX" + actualBlobBodyPoint.id]));
+                if(clearInterval(window["intervalY" + actualBlobBodyPoint.id]));
                 playerBlobBodyPointArray.splice(playerBlobBodyPointArray.indexOf(actualBlobBodyPoint),1);
             }
         })
@@ -195,7 +195,6 @@ const startGame = () => {
                     playerBlobBodyPointArray.forEach(playerBlobBodyPoint => { //I'm forEaching now becouse i'll need corectly id'ies i all separated functions
                     if(playerBlobBodyPoint.move == true) { // i made also once more identification to do not move others BlobBodyPoints
                         playerBlobBodyPoint.move = false;
-                        console.log(playerBlobBodyPoint)
                         if(playerBlobBodyPoint.id == playerBlobBodyPointArray[lastIndex(playerBlobBodyPointArray)].id) // here I can do this, without errors, but in setInterval in correctly Id'ies
                         idOfElement = playerBlobBodyPoint.id;
                         if(mouseCoord.x < actualPlayerBlobBody.position.x) {
@@ -254,16 +253,29 @@ const moveBloBAutomaticalyInsideInterval = (actualCoord, endCoord, id) => {
     return actualCoord;
 }
 updateCordX = (endCoord, id) => {
-    actualCoordUpdated = playerBlobBodyPointArray[id].position.x // setInterval takes argument's only once and those are not even changded every interval so  i decided to took data every time normalny in function
-    if(actualCoordUpdated < 0) actualCoordUpdated = 0;
-    if(actualCoordUpdated > canvas.width) actualCoordUpdated = canvas.width;
-    coordX = moveBloBAutomaticalyInsideInterval(actualCoordUpdated, endCoord, id);
-    playerBlobBodyPointArray[id].position.x = coordX;
+    playerBlobBodyPointArray.forEach(actualBlobBodyPoint => {
+        if(actualBlobBodyPoint.id == id){
+            actualCoordUpdated = actualBlobBodyPoint.position.y; // setInterval takes argument's only once and those are not even changded every interval so  i decided to took data every time normalny in function
+            if(actualCoordUpdated < 0) actualCoordUpdated = 0;
+            if(actualCoordUpdated > canvas.width) actualCoordUpdated = canvas.width;
+            coordX = moveBloBAutomaticalyInsideInterval(actualCoordUpdated, endCoord, id);
+            actualBlobBodyPoint.position.x = coordX;
+        }
+    })
 }
 updateCordY = (endCoord, id) => {
-    actualCoordUpdated = playerBlobBodyPointArray[id].position.y;
-    if(actualCoordUpdated < 0) actualCoordUpdated = 0;
-    if(actualCoordUpdated > canvas.width) actualCoordUpdated = canvas.width;
-    coordY = moveBloBAutomaticalyInsideInterval(actualCoordUpdated, endCoord, id);
-    playerBlobBodyPointArray[id].position.y = coordY;
+    playerBlobBodyPointArray.forEach(actualBlobBodyPoint => {
+        if(actualBlobBodyPoint.id == id){
+            actualCoordUpdated = actualBlobBodyPoint.position.y;
+            if(actualCoordUpdated < 0) actualCoordUpdated = 0;
+            if(actualCoordUpdated > canvas.width) actualCoordUpdated = canvas.width;
+            coordY = moveBloBAutomaticalyInsideInterval(actualCoordUpdated, endCoord, id);
+            actualBlobBodyPoint.position.y = coordY;
+        }
+    })
+    // actualCoordUpdated = playerBlobBodyPointArray[id].position.y;
+    // if(actualCoordUpdated < 0) actualCoordUpdated = 0;
+    // if(actualCoordUpdated > canvas.width) actualCoordUpdated = canvas.width;
+    // coordY = moveBloBAutomaticalyInsideInterval(actualCoordUpdated, endCoord, id);
+    // playerBlobBodyPointArray[id].position.y = coordY;
 }
