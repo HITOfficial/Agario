@@ -209,7 +209,8 @@ const startGame = () => {
                             if(endingX > canvas.width) endingX = canvas.width
                             // setInterval(moveBloBAutomaticalyInsideInterval, 1000, playerBlobBodyPoint.position.x ,playerBlobBodyPoint.position.x, playerBlobBodyPoint.position.x - 4 * playerBlobBodyPoint.range.radius)
                             console.log('tu x: ' + playerBlobBodyPoint.position.x, 'tu y: ' + playerBlobBodyPoint.position.y);
-                            window["interval" + idOfElement] = setInterval(updateCordX, 1000, playerBlobBodyPoint.position.x ,playerBlobBodyPoint.position.x, playerBlobBodyPoint.position.x - 4 * playerBlobBodyPoint.range.radius, playerBlobBodyPoint.id);
+                            window["interval" + idOfElement] = setInterval(updateCordX, 1000/60, playerBlobBodyPoint.position.x, playerBlobBodyPoint.position.x - 4 * playerBlobBodyPoint.range.radius, playerBlobBodyPoint.id);
+                            // setTimeout(()=> console.log('Po wszystkim XX' + JSON.stringify(playerBlobBodyPointArray[0])),1500);
                         }
                         // if(mouseCoord.y > actualPlayerBlobBody.position.y) {
                         //     playerBlobBodyPointArray[idOfElement].position.y += actualPlayerBlobBody.range.radius;    
@@ -260,35 +261,39 @@ const lastIndex = (array) => {
     last = array.length - 1
     return last;
 }
-const moveBloBAutomaticalyInsideInterval = (blob, actualCoord, endCoord, id) => {
+const moveBloBAutomaticalyInsideInterval = (actualCoord, endCoord, id) => {
     // console.log('to  kurwa to ' + blob);
     // console.log(endCoord)
     // console.log(playerBlobBodyPoint)
     if(actualCoord >= endCoord) {
-        actualCoord -= 50;
+        actualCoord -= 1;
         if(actualCoord <= endCoord){
-            clearInterval(window["interval" + idOfElement]);
+            clearInterval(window["interval" + id]);
             console.log(`konczeeeeeeeeeeeeeeeeeeeeee A: ${actualCoord} E: ${endCoord}`);
         }
     }
-    if(actualCoord <= endCoord) {
-        actualCoord += 1;
-        if(actualCoord >= endCoord){
-            clearInterval(playerBlobBodyPointArray.moveBloBAutomaticaly);
-            clearInterval(playerBlobBodyPointArray.updateCoordXInterval);
-            clearInterval(playerBlobBodyPointArray.updateCoordYInterval);
-            console.log(`koncze A: ${actualCoord} E: ${endCoord}`);
-        }
-    }
+    // if(actualCoord <= endCoord) {
+    //     actualCoord += 1;
+    //     if(actualCoord >= endCoord){
+    //         clearInterval(playerBlobBodyPointArray.moveBloBAutomaticaly);
+    //         clearInterval(playerBlobBodyPointArray.updateCoordXInterval);
+    //         clearInterval(playerBlobBodyPointArray.updateCoordYInterval);
+    //         console.log(`koncze A: ${actualCoord} E: ${endCoord}`);
+    //     }
+    // }
     return actualCoord;
 }
-updateCordX = (blob, actualCoord, endCoord, id) => {
-    console.log(actualCoord, endCoord);
-    coordX = moveBloBAutomaticalyInsideInterval(blob, actualCoord, endCoord, id);
-    console.log('return ' + coordX);
-    console.log('aktualnie' + playerBlobBodyPointArray[id].position.x);
-    playerBlobBodyPointArray[id].position.x = coordX;
-    console.log(' nadpisane ' + playerBlobBodyPointArray[id].position.x);  
+updateCordX = (actualCoord, endCoord, id) => {
+    // console.log('Podany Cord Przed ' + playerBlobBodyPointArray[id].position.x)
+    actualCoordUpdated = playerBlobBodyPointArray[id].position.x
+    // console.log('poczatek ' + actualCoord + ' koniec ' + endCoord); // ciagle pobiera startową wartość
+    coordX = moveBloBAutomaticalyInsideInterval(actualCoordUpdated, endCoord, id);
+    // console.log('Podany Cord Po ' + playerBlobBodyPointArray[id].position.x)
+    // console.log('będzie nadpisane ' + coordX);
+    // console.log('aktualnie' + playerBlobBodyPointArray[id].position.x);
+    playerBlobBodyPointArray[id].position.x = coordX; // po pierwszym jest juz zmienione
+    console.log('Podany Cord Po ' + playerBlobBodyPointArray[id].position.x)
+    // console.log(' nadpisane ' + playerBlobBodyPointArray[id].position.x);  
 }
 updateCordY = (blob, actualCoord, endCoord) => {
     coordY = moveBloBAutomaticalyInsideInterval(blob, actualCoord, endCoord);
@@ -296,3 +301,16 @@ updateCordY = (blob, actualCoord, endCoord) => {
     playerBlobBodyPointArray[id].position.y = coordY;
 }
 let updateCoordXInterval, updateCoordYInterval
+
+
+
+/// matka => i dwa intervale actualCoord dalej jest zmodyfikowany! 
+// updateCordX = (actualCoord, endCoord, id) => {
+//     console.log('poczatek ' + actualCoord + ' koniec ' + endCoord); // ciagle pobiera startową wartość
+//     coordX = moveBloBAutomaticalyInsideInterval(actualCoord, endCoord, id);
+//     // console.log('będzie nadpisane ' + coordX);
+//     console.log('aktualnie' + playerBlobBodyPointArray[id].position.x);
+//     playerBlobBodyPointArray[id].position.x = coordX; // po pierwszym jest juz zmienione
+//     console.log(' nadpisane ' + playerBlobBodyPointArray[id].position.x);  
+// }
+
